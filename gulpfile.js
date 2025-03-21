@@ -1,6 +1,9 @@
 // Core
 var gulp = require('gulp');
+
+// Server
 var browserSync = require('browser-sync').create();
+var proxy = require('http-proxy-middleware');
 
 // Clean
 var clean = require('gulp-clean');
@@ -28,10 +31,29 @@ var imagemin = require('gulp-imagemin');
 var tar = require('gulp-tar');
 var gzip = require('gulp-gzip');
 
-// Server
-var proxy = require('http-proxy-middleware');
-
 require('dotenv').config({ path: '.env.' + process.env.NODE_ENV });
+
+/**
+ * Development server task
+ * @description 개발 서버를 실행하고 파일 변경을 감지합니다.
+ */
+gulp.task('serve', function () {
+	browserSync.init({
+		server: {
+			baseDir: './',
+			middleware: ['/auth-user', '/auth-admin'].map(function (context) {
+				return proxy.createProxyMiddleware(context, {
+					target: process.env.PROXY_URL + ':13131',
+					changeOrigin: true
+				});
+			})
+		},
+		port: 80,
+		open: true
+	});
+
+	gulp.watch('src/**/*.scss', gulp.series('sass'));
+});
 
 /**
  * Clean task
@@ -54,7 +76,7 @@ gulp.task('sass', function () {
 		.pipe(sass({ outputStyle: 'expanded' }).on('error', sass.logError))
 		.pipe(postcss(plugins))
 		.pipe(gulp.dest(dest))
-		.pipe(browserSync.stream());
+		.pipe(process.env.NODE_ENV === 'production' ? gulp.noop() : browserSync.stream());
 });
 
 /**
@@ -79,7 +101,7 @@ gulp.task('ejs', function () {
  */
 gulp.task('bundle', function () {
 	return browserify({
-		entries: 'src/main.js',
+		entries: 'src/index.js',
 		debug: false
 	})
 		.bundle()
@@ -110,28 +132,6 @@ gulp.task('assets', function () {
  */
 gulp.task('compress', function () {
 	return gulp.src('dist/**').pipe(tar('dist.tar')).pipe(gzip()).pipe(gulp.dest('.'));
-});
-
-/**
- * Development server task
- * @description 개발 서버를 실행하고 파일 변경을 감지합니다.
- */
-gulp.task('serve', function () {
-	browserSync.init({
-		server: {
-			baseDir: './',
-			middleware: ['/auth-user', '/auth-admin'].map(function (context) {
-				return proxy.createProxyMiddleware(context, {
-					target: process.env.PROXY_URL + ':13131',
-					changeOrigin: true
-				});
-			})
-		},
-		port: 80,
-		open: true
-	});
-
-	gulp.watch('src/**/*.scss', gulp.series('sass'));
 });
 
 /**
