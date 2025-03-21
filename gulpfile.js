@@ -1,141 +1,128 @@
+// Core
 var gulp = require('gulp');
 var browserSync = require('browser-sync').create();
-var sass = require('gulp-sass')(require('sass'));
+
+// Clean
 var clean = require('gulp-clean');
-var processhtml = require('gulp-processhtml');
-var concat = require('gulp-concat');
-var cssmin = require('gulp-cssmin');
-var imagemin = require('gulp-imagemin');
-var uglify = require('gulp-uglify');
-var tar = require('gulp-tar');
-var gzip = require('gulp-gzip');
-var proxy = require('http-proxy-middleware');
+
+// Styles
+var sass = require('gulp-sass')(require('sass'));
+var postcss = require('gulp-postcss');
+var autoprefixer = require('autoprefixer');
+var cssnano = require('cssnano');
+
+// Templates
+var ejs = require('gulp-ejs');
+var rename = require('gulp-rename');
+
+// Scripts
 var browserify = require('browserify');
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
+var uglify = require('gulp-uglify');
+
+// Assets
+var imagemin = require('gulp-imagemin');
+
+// Archive
+var tar = require('gulp-tar');
+var gzip = require('gulp-gzip');
+
+// Server
+var proxy = require('http-proxy-middleware');
 
 require('dotenv').config({ path: '.env.' + process.env.NODE_ENV });
 
-// Clean
+/**
+ * Clean task
+ * @description 빌드 결과물을 제거합니다.
+ */
 gulp.task('clean', function () {
 	return gulp.src('dist', { read: false, allowEmpty: true }).pipe(clean());
 });
 
-// Process HTML
-gulp.task('processhtml', function () {
-	return gulp.src('index.html').pipe(processhtml()).pipe(gulp.dest('dist'));
-});
-
-// Sass
+/**
+ * Sass task
+ * @description SCSS 파일을 처리합니다.
+ */
 gulp.task('sass', function () {
-	return gulp
-		.src(['common/styles/application.scss', 'src/**/*.scss'])
-		.pipe(
-			sass({
-				sourceMap: true,
-				outputStyle: process.env.NODE_ENV === 'production' ? 'compressed' : 'expanded',
-				includePaths: ['node_modules']
-			}).on('error', sass.logError)
-		)
-		.pipe(gulp.dest('src/styles'))
-		.pipe(
-			browserSync.stream({
-				match: '**/*.css'
-			})
-		);
-});
+	var plugins = process.env.NODE_ENV === 'production' ? [autoprefixer(), cssnano()] : [autoprefixer()];
+	var dest = process.env.NODE_ENV === 'production' ? 'dist/assets' : 'src/styles';
 
-// Development Bundle
-gulp.task('bundle:dev', function () {
-	return browserify({
-		entries: 'src/main.js',
-		debug: true
-	})
-		.transform('sassify', {
-			'auto-inject': true,
-			base64Encode: false,
-			sourceMap: true
-		})
-		.bundle()
-		.pipe(source('bundle.js'))
-		.pipe(buffer())
-		.pipe(gulp.dest('dist/assets'))
+	return gulp
+		.src('src/styles/style.scss')
+		.pipe(sass({ outputStyle: 'expanded' }).on('error', sass.logError))
+		.pipe(postcss(plugins))
+		.pipe(gulp.dest(dest))
 		.pipe(browserSync.stream());
 });
 
-// Concat
-gulp.task('concat', function () {
+/**
+ * EJS task
+ * @description 프로덕션 환경에서 EJS 템플릿을 HTML로 변환합니다.
+ */
+gulp.task('ejs', function () {
+	return gulp
+		.src(['src/pages/**/*.ejs', '!src/partials/**/*.ejs'])
+		.pipe(
+			ejs({
+				env: process.env.NODE_ENV
+			})
+		)
+		.pipe(rename({ extname: '.html' }))
+		.pipe(gulp.dest('dist'));
+});
+
+/**
+ * Bundle task
+ * @description 프로덕션 환경에서 JavaScript 파일을 번들링하고 압축합니다.
+ */
+gulp.task('bundle', function () {
+	return browserify({
+		entries: 'src/main.js',
+		debug: false
+	})
+		.bundle()
+		.pipe(source('index.js'))
+		.pipe(buffer())
+		.pipe(uglify())
+		.pipe(gulp.dest('dist/assets'));
+});
+
+/**
+ * Assets task
+ * @description 정적 파일을 처리합니다.
+ */
+gulp.task('assets', function () {
 	return gulp.parallel(
-		function js() {
-			return gulp
-				.src(['dist/index.js', 'common/js/**/*.js', 'src/**/*.js'])
-				.pipe(concat('index.js'))
-				.pipe(gulp.dest('dist/assets'));
+		function images() {
+			return gulp.src('src/assets/images/**/*').pipe(imagemin()).pipe(gulp.dest('dist/assets/images'));
 		},
-		function css() {
-			return gulp
-				.src(['dist/assets/style.css', 'src/**/*.css'])
-				.pipe(concat('style.css'))
-				.pipe(gulp.dest('dist/assets'));
-		}
-	);
-});
-
-// Minify CSS
-gulp.task('cssmin', function () {
-	return gulp.src('dist/assets/style.css').pipe(cssmin()).pipe(gulp.dest('dist/assets/style.min.css'));
-});
-
-// Optimize Images
-gulp.task('imagemin', function () {
-	return gulp.src('common/images/**/*.{png,jpg,gif}').pipe(imagemin()).pipe(gulp.dest('dist/assets/images'));
-});
-
-// Uglify JS
-gulp.task('uglify', function () {
-	return gulp.src('dist/assets/index.js').pipe(uglify()).pipe(gulp.dest('dist/assets/index.min.js'));
-});
-
-// Copy Files
-gulp.task('copy', function () {
-	return gulp.parallel(
 		function fonts() {
-			return gulp.src('common/fonts/**').pipe(gulp.dest('dist/assets/fonts'));
-		},
-		function templates() {
-			return gulp.src('common/template/**').pipe(gulp.dest('dist/assets/template'));
+			return gulp.src('src/assets/fonts/**/*').pipe(gulp.dest('dist/assets/fonts'));
 		}
-	);
+	)();
 });
 
-// Compress
+/**
+ * Compress task
+ * @description 빌드 결과물을 압축합니다.
+ */
 gulp.task('compress', function () {
-	return gulp.src('dist/**').pipe(tar('dist.tar.gz')).pipe(gzip()).pipe(gulp.dest('.'));
+	return gulp.src('dist/**').pipe(tar('dist.tar')).pipe(gzip()).pipe(gulp.dest('.'));
 });
 
-// Development Server
-gulp.task('server', function () {
+/**
+ * Development server task
+ * @description 개발 서버를 실행하고 파일 변경을 감지합니다.
+ */
+gulp.task('serve', function () {
 	browserSync.init({
 		server: {
 			baseDir: './',
-			index: 'index.html',
-			middleware: [
-				'/api',
-				'/auth-user',
-				'/auth-admin',
-				'/auth-check',
-				'/auth-sche',
-				'/sso',
-				'/dwr',
-				'/logout',
-				'/oauth2',
-				'/login',
-				'/auth-editor',
-				'/engine-search-api',
-				'/engine-snow'
-			].map(function (context) {
+			middleware: ['/auth-user', '/auth-admin'].map(function (context) {
 				return proxy.createProxyMiddleware(context, {
-					target: process.env.API_URL + ':13131',
+					target: process.env.PROXY_URL + ':13131',
 					changeOrigin: true
 				});
 			})
@@ -144,32 +131,22 @@ gulp.task('server', function () {
 		open: true
 	});
 
-	gulp.watch('src/**/*.{js,scss}', gulp.series('bundle:dev'));
-	gulp.watch('*.html').on('change', browserSync.reload);
+	gulp.watch('src/**/*.scss', gulp.series('sass'));
 });
 
-// Production Build
-gulp.task('build:prod', function () {
-	return gulp.series(
-		'clean',
-		'processhtml',
-		'sass',
-		gulp.parallel('concat', 'imagemin'),
-		gulp.parallel('cssmin', 'uglify'),
-		'copy',
-		'compress'
-	)();
-});
+/**
+ * Build task
+ * @description 프로덕션 빌드를 수행합니다.
+ */
+gulp.task('build', gulp.series('clean', gulp.parallel('ejs', 'sass', 'bundle'), 'assets', 'compress'));
 
-// Development Build
-gulp.task('build:dev', function () {
-	return gulp.series('clean', 'processhtml', 'bundle:dev', 'copy')();
-});
-
-// Default Task (Development)
+/**
+ * Default task
+ * @description 환경에 따라 개발 서버 실행 또는 프로덕션 빌드를 수행합니다.
+ */
 gulp.task('default', function () {
 	if (process.env.NODE_ENV === 'production') {
-		return gulp.series('build:prod')();
+		return gulp.series('build')();
 	}
-	return gulp.series('build:dev', 'server')();
+	return gulp.series('sass', 'serve')();
 });
