@@ -5,6 +5,7 @@ var pluginJs = require('@eslint/js');
 module.exports = [
 	{
 		files: ['**/*.js'],
+		ignores: ['node_modules/**', 'dist/**'],
 		languageOptions: {
 			ecmaVersion: 5,
 			sourceType: 'commonjs',
