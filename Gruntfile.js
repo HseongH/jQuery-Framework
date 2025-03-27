@@ -26,10 +26,11 @@ module.exports = function (grunt) {
 					hostname: '*',
 					livereload: true,
 					open: true,
-					base: '.',
+					base: 'dist',
 					middleware: function (connect, options, middlewares) {
 						var proxy = require('grunt-middleware-proxy/lib/Utils').getProxyMiddleware();
 						middlewares.unshift(proxy);
+
 						return middlewares;
 					}
 				},
@@ -57,6 +58,20 @@ module.exports = function (grunt) {
 					livereload: true
 				}
 			},
+			js: {
+				files: ['src/**/*.js'],
+				tasks: ['browserify'],
+				options: {
+					livereload: true
+				}
+			},
+			ejs: {
+				files: ['src/**/*.ejs'],
+				tasks: ['ejs'],
+				options: {
+					livereload: true
+				}
+			},
 			configFiles: {
 				files: ['Gruntfile.js', '*.config.js'],
 				options: {
@@ -74,18 +89,6 @@ module.exports = function (grunt) {
 		},
 
 		/**
-		 * HTML 파일 처리 설정
-		 * @type {Object}
-		 */
-		processhtml: {
-			dist: {
-				files: {
-					'dist/index.html': ['index.html']
-				}
-			}
-		},
-
-		/**
 		 * Sass 컴파일 설정
 		 * @type {Object}
 		 */
@@ -98,8 +101,23 @@ module.exports = function (grunt) {
 			},
 			dist: {
 				files: {
-					'src/styles/style.css': ['src/styles/style.scss']
+					'dist/assets/style.css': ['src/styles/style.scss']
 				}
+			}
+		},
+
+		/**
+		 * 파일 병합 설정
+		 * @type {Object}
+		 */
+		concat: {
+			css: {
+				src: [
+					'dist/assets/style.css',
+					'node_modules/datatables.net-*/css/*.css',
+					'!node_modules/datatables.net-*/css/*.min.css' // .min.css 파일 제외
+				],
+				dest: 'dist/assets/style.css'
 			}
 		},
 
@@ -113,8 +131,8 @@ module.exports = function (grunt) {
 				config: 'postcss.config.js'
 			},
 			dist: {
-				src: 'src/styles/style.css',
-				dest: 'src/styles/style.css'
+				src: 'dist/assets/style.css',
+				dest: 'dist/assets/style.css'
 			}
 		},
 
@@ -126,6 +144,9 @@ module.exports = function (grunt) {
 			dist: {
 				files: {
 					'dist/assets/index.js': ['src/index.js']
+				},
+				options: {
+					transform: ['ejsify']
 				}
 			}
 		},
@@ -139,25 +160,33 @@ module.exports = function (grunt) {
 				options: {
 					env: process.env.NODE_ENV
 				},
-				src: ['src/pages/**/*.ejs'],
-				dest: 'dist/',
-				expand: true,
-				ext: '.html'
+				files: [
+					{
+						expand: true,
+						cwd: 'src/pages',
+						src: ['**/*.ejs'],
+						dest: 'dist/',
+						ext: '.html'
+					}
+				]
 			}
 		},
 
 		/**
-		 * 파일 병합 설정
+		 * HTML 파일 처리 설정
 		 * @type {Object}
 		 */
-		concat: {
-			js: {
-				src: ['dist/assets/index.js', 'src/**/*.js'],
-				dest: 'dist/assets/index.js'
-			},
-			css: {
-				src: ['src/**/*.css'],
-				dest: 'dist/assets/style.css'
+		processhtml: {
+			dist: {
+				files: [
+					{
+						expand: true,
+						cwd: 'dist/',
+						src: ['**/*.html'],
+						dest: 'dist/',
+						ext: '.html'
+					}
+				]
 			}
 		},
 
@@ -234,9 +263,23 @@ module.exports = function (grunt) {
 
 	/**
 	 * 개발 서버 실행 태스크
-	 * 프록시 설정, 서버 실행, 파일 감시를 동시에 수행
+	 * 1. Sass 컴파일
+	 * 2. PostCSS 처리
+	 * 3. JavaScript 번들링
+	 * 4. 프록시 서버 설정
+	 * 5. 개발 서버 실행
+	 * 6. 파일 변경 감지
 	 */
-	grunt.registerTask('server', ['sass', 'postcss', 'setupProxies:server', 'connect:server', 'watch']);
+	grunt.registerTask('server', [
+		'sass',
+		'concat',
+		'postcss',
+		'browserify',
+		'ejs',
+		'setupProxies:server',
+		'connect:server',
+		'watch'
+	]);
 
 	/**
 	 * 프로덕션 빌드 태스크
@@ -256,11 +299,11 @@ module.exports = function (grunt) {
 	 */
 	grunt.registerTask('build', [
 		'clean',
-		'processhtml',
 		'sass',
 		'postcss',
 		'browserify',
 		'ejs',
+		'processhtml',
 		'concat',
 		'cssmin',
 		'uglify',

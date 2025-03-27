@@ -13,7 +13,7 @@
 		"build:stg": "cross-env NODE_ENV=stage grunt build",
 		"lint": "eslint --ext js --report-unused-disable-directives --max-warnings 0",
 		"lint:fix": "eslint --fix",
-		"format": "prettier --cache --write .",
+		"format": "prettier --cache --write \"**/*.{js,scss,ejs}\"",
 		"prepare": "husky"
 	},
 	"keywords": [],
@@ -22,10 +22,11 @@
 	"devDependencies": {
 		"@eslint/js": "^9.22.0",
 		"autoprefixer": "^10.4.21",
-		"browserify": "^17.0.1",
 		"cross-env": "^7.0.3",
 		"dotenv": "^16.4.7",
+		"ejsify": "^1.0.0",
 		"eslint": "^9.22.0",
+		"express": "^4.21.2",
 		"globals": "^16.0.0",
 		"grunt": "^1.6.1",
 		"grunt-browserify": "^6.0.0",
@@ -37,7 +38,6 @@
 		"grunt-contrib-copy": "^1.0.0",
 		"grunt-contrib-cssmin": "^5.0.0",
 		"grunt-contrib-imagemin": "^4.0.0",
-		"grunt-contrib-sass": "^2.0.0",
 		"grunt-contrib-uglify": "^5.2.2",
 		"grunt-contrib-watch": "^1.1.0",
 		"grunt-ejs": "^1.0.0",
@@ -55,8 +55,21 @@
 		"prettier": "^3.5.3"
 	},
 	"dependencies": {
+		"@fortawesome/fontawesome-free": "^6.7.2",
 		"bootstrap": "^4.6.2",
-		"ejs": "^3.1.10",
+		"d3": "^7.9.0",
+		"datatables.net-bs4": "^2.2.2",
+		"datatables.net-buttons-bs4": "^3.2.2",
+		"datatables.net-colreorder-bs4": "^2.0.4",
+		"datatables.net-fixedcolumns-bs4": "^5.0.4",
+		"datatables.net-fixedheader-bs4": "^4.0.1",
+		"datatables.net-responsive-bs4": "^3.0.4",
+		"datatables.net-rowgroup-bs4": "^1.5.1",
+		"datatables.net-rowreorder-bs4": "^1.5.0",
+		"datatables.net-scroller-bs4": "^2.4.3",
+		"datatables.net-searchbuilder-bs4": "^1.8.2",
+		"datatables.net-select-bs4": "^3.0.0",
+		"datatables.net-staterestore-bs4": "^1.4.1",
 		"jquery": "^3.7.1",
 		"lodash": "^4.17.21"
 	}
