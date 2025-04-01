@@ -65,9 +65,9 @@ module.exports = function (grunt) {
 					livereload: true
 				}
 			},
-			ejs: {
-				files: ['src/**/*.ejs'],
-				tasks: ['ejs'],
+			template: {
+				files: ['src/pages/*.html'],
+				tasks: ['template'],
 				options: {
 					livereload: true
 				}
@@ -144,29 +144,27 @@ module.exports = function (grunt) {
 			dist: {
 				files: {
 					'dist/assets/index.js': ['src/index.js']
-				},
-				options: {
-					transform: ['ejsify']
 				}
 			}
 		},
 
 		/**
-		 * EJS 템플릿 변환 설정
+		 * HTML 템플릿 처리 설정
 		 * @type {Object}
 		 */
-		ejs: {
-			all: {
-				options: {
-					env: process.env.NODE_ENV
-				},
+		template: {
+			options: {
+				layout: 'src/partials/layout.html'
+			},
+			dist: {
 				files: [
 					{
 						expand: true,
 						cwd: 'src/pages',
-						src: ['**/*.ejs'],
+						src: ['**/*.html'],
 						dest: 'dist/',
-						ext: '.html'
+						ext: '.html',
+						flatten: false
 					}
 				]
 			}
@@ -262,6 +260,68 @@ module.exports = function (grunt) {
 	});
 
 	/**
+	 * HTML 템플릿 처리 태스크
+	 */
+	grunt.registerTask('template', 'Process HTML templates with layout', function () {
+		var fs = require('fs');
+		var path = require('path');
+		var _ = require('underscore');
+		var done = this.async();
+
+		// 레이아웃 템플릿 읽기
+		var layoutPath = grunt.config('template.options.layout');
+		var layoutContent = fs.readFileSync(layoutPath, 'utf8');
+
+		// 페이지 파일 목록 가져오기
+		var files = grunt.config('template.dist.files')[0];
+		var pages = grunt.file.expand({ cwd: files.cwd }, files.src);
+
+		var completed = 0;
+		var total = pages.length;
+
+		pages.forEach(function (page) {
+			try {
+				// 페이지 내용 읽기
+				var pageContent = fs.readFileSync(path.join(files.cwd, page), 'utf8');
+				grunt.log.writeln(page);
+
+				var content = _.template(layoutContent)({
+					routes: [
+						{ href: 'index.html', text: 'Home' },
+						{ href: 'about.html', text: 'About' }
+					],
+					current: page
+				});
+				// 레이아웃에 페이지 내용 삽입 (HTML 이스케이프 방지)
+				var finalContent = content.replace('{{ contents }}', pageContent);
+
+				// 출력 경로 생성
+				var destPath = path.join(files.dest, page);
+
+				// 디렉토리 생성
+				grunt.file.mkdir(path.dirname(destPath));
+
+				// 파일 저장
+				fs.writeFileSync(destPath, finalContent);
+
+				grunt.log.ok('Processed: ' + page);
+			} catch (err) {
+				grunt.log.error('Error processing ' + page + ': ' + err.message);
+			}
+
+			completed++;
+			if (completed === total) {
+				done();
+			}
+		});
+
+		if (total === 0) {
+			grunt.log.writeln('No HTML files to process.');
+			done();
+		}
+	});
+
+	/**
 	 * 개발 서버 실행 태스크
 	 * 1. Sass 컴파일
 	 * 2. PostCSS 처리
@@ -275,7 +335,7 @@ module.exports = function (grunt) {
 		'concat',
 		'postcss',
 		'browserify',
-		'ejs',
+		'template',
 		'setupProxies:server',
 		'connect:server',
 		'watch'
@@ -285,15 +345,15 @@ module.exports = function (grunt) {
 	 * 프로덕션 빌드 태스크
 	 * 다음 순서로 실행:
 	 * 1. dist 폴더 정리
-	 * 2. HTML 파일 처리
-	 * 3. SCSS 전처리
-	 * 4. Sass 컴파일
-	 * 5. JavaScript 번들링
-	 * 6. EJS 템플릿 변환
-	 * 7. 파일 병합
+	 * 2. SCSS 컴파일
+	 * 3. PostCSS 처리
+	 * 4. JavaScript 번들링
+	 * 5. HTML 템플릿 처리
+	 * 6. HTML 파일 처리
+	 * 7. CSS 파일 병합
 	 * 8. CSS 압축
-	 * 9. 이미지 최적화
-	 * 10. JavaScript 압축
+	 * 9. JavaScript 압축
+	 * 10. 이미지 최적화
 	 * 11. 폰트 파일 복사
 	 * 12. 최종 빌드 압축
 	 */
@@ -302,7 +362,7 @@ module.exports = function (grunt) {
 		'sass',
 		'postcss',
 		'browserify',
-		'ejs',
+		'template',
 		'processhtml',
 		'concat',
 		'cssmin',

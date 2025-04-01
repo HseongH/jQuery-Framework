@@ -13,7 +13,7 @@
 		"build:stg": "cross-env NODE_ENV=stage grunt build",
 		"lint": "eslint --ext js --report-unused-disable-directives --max-warnings 0",
 		"lint:fix": "eslint --fix",
-		"format": "prettier --cache --write \"**/*.{js,scss,ejs}\"",
+		"format": "prettier --cache --write \"**/*.{js,scss}\"",
 		"prepare": "husky"
 	},
 	"keywords": [],
@@ -24,7 +24,6 @@
 		"autoprefixer": "^10.4.21",
 		"cross-env": "^7.0.3",
 		"dotenv": "^16.4.7",
-		"ejsify": "^1.0.0",
 		"eslint": "^9.22.0",
 		"express": "^4.21.2",
 		"globals": "^16.0.0",
@@ -40,7 +39,6 @@
 		"grunt-contrib-imagemin": "^4.0.0",
 		"grunt-contrib-uglify": "^5.2.2",
 		"grunt-contrib-watch": "^1.1.0",
-		"grunt-ejs": "^1.0.0",
 		"grunt-middleware-proxy": "^1.0.7",
 		"grunt-postcss": "^0.9.0",
 		"grunt-processhtml": "^0.4.4",
@@ -71,6 +69,6 @@
 		"datatables.net-select-bs4": "^3.0.0",
 		"datatables.net-staterestore-bs4": "^1.4.1",
 		"jquery": "^3.7.1",
-		"lodash": "^4.17.21"
+		"underscore": "^1.13.7"
 	}
 }
