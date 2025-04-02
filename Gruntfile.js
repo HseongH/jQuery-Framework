@@ -128,7 +128,7 @@ module.exports = function (grunt) {
 		postcss: {
 			options: {
 				map: true,
-				config: 'postcss.config.js'
+				processors: [require('autoprefixer')()]
 			},
 			dist: {
 				src: 'dist/assets/style.css',

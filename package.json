@@ -5,7 +5,6 @@
 	"main": "index.js",
 	"type": "commonjs",
 	"scripts": {
-		"watch": "grunt watch",
 		"dev": "cross-env NODE_ENV=development grunt server",
 		"stg": "cross-env NODE_ENV=stage grunt server",
 		"prod": "cross-env NODE_ENV=production grunt server",
@@ -21,7 +20,7 @@
 	"license": "ISC",
 	"devDependencies": {
 		"@eslint/js": "^9.22.0",
-		"autoprefixer": "^10.4.21",
+		"autoprefixer": "^9.8.8",
 		"cross-env": "^7.0.3",
 		"dotenv": "^16.4.7",
 		"eslint": "^9.22.0",
@@ -46,10 +45,6 @@
 		"husky": "^9.1.7",
 		"load-grunt-tasks": "^5.1.0",
 		"node-sass": "^9.0.0",
-		"postcss": "^8.5.3",
-		"postcss-flexbugs-fixes": "^5.0.2",
-		"postcss-normalize": "^13.0.1",
-		"postcss-preset-env": "^10.1.5",
 		"prettier": "^3.5.3"
 	},
 	"dependencies": {
