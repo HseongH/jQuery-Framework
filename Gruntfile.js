@@ -281,19 +281,15 @@ module.exports = function (grunt) {
 
 		pages.forEach(function (page) {
 			try {
-				// 페이지 내용 읽기
-				var pageContent = fs.readFileSync(path.join(files.cwd, page), 'utf8');
-				grunt.log.writeln(page);
-
-				var content = _.template(layoutContent)({
+				// 레이아웃에 페이지 내용 삽입 (HTML 이스케이프 방지)
+				var finalContent = _.template(layoutContent)({
 					routes: [
 						{ href: 'index.html', text: 'Home' },
 						{ href: 'about.html', text: 'About' }
 					],
-					current: page
+					current: page,
+					contents: fs.readFileSync(path.join(files.cwd, page), 'utf8')
 				});
-				// 레이아웃에 페이지 내용 삽입 (HTML 이스케이프 방지)
-				var finalContent = content.replace('{{ contents }}', pageContent);
 
 				// 출력 경로 생성
 				var destPath = path.join(files.dest, page);
