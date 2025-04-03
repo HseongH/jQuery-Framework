@@ -4,7 +4,7 @@
  */
 
 module.exports = function (grunt) {
-	'use strict';
+	('use strict');
 
 	// Load all Grunt tasks automatically
 	require('load-grunt-tasks')(grunt);
@@ -53,7 +53,7 @@ module.exports = function (grunt) {
 		watch: {
 			scss: {
 				files: ['src/**/*.scss'],
-				tasks: ['sass', 'postcss'],
+				tasks: ['sass'],
 				options: {
 					livereload: true
 				}
@@ -283,10 +283,6 @@ module.exports = function (grunt) {
 			try {
 				// 레이아웃에 페이지 내용 삽입 (HTML 이스케이프 방지)
 				var finalContent = _.template(layoutContent)({
-					routes: [
-						{ href: 'index.html', text: 'Home' },
-						{ href: 'about.html', text: 'About' }
-					],
 					current: page,
 					contents: fs.readFileSync(path.join(files.cwd, page), 'utf8')
 				});
@@ -319,17 +315,17 @@ module.exports = function (grunt) {
 
 	/**
 	 * 개발 서버 실행 태스크
-	 * 1. Sass 컴파일
-	 * 2. PostCSS 처리
+	 * 1. dist 폴더 정리
+	 * 2. Sass 컴파일
 	 * 3. JavaScript 번들링
 	 * 4. 프록시 서버 설정
 	 * 5. 개발 서버 실행
 	 * 6. 파일 변경 감지
 	 */
 	grunt.registerTask('server', [
+		'clean',
 		'sass',
 		'concat',
-		'postcss',
 		'browserify',
 		'template',
 		'setupProxies:server',

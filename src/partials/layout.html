@@ -37,17 +37,35 @@
 					class="collapse navbar-collapse"
 					id="collapsibleNav">
 					<ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-						<% _.each(routes, function(route) { %>
-						<li class="nav-item <%= route.href === current ? 'active' : '' %>">
+						<li class="nav-item <%= current === 'index.html' ? 'active' : '' %>">
 							<a
 								class="nav-link"
-								href="<%= route.href %>">
-								<%= route.text %> <% if (route.href === current) { %>
+								href="index.html">
+								Dashboard <% if (current === 'index.html') { %>
 								<span class="sr-only">(current)</span>
 								<% } %>
 							</a>
 						</li>
-						<% }); %>
+
+						<li class="nav-item <%= current === 'server.html' ? 'active' : '' %>">
+							<a
+								class="nav-link"
+								href="server.html">
+								Server <% if (current === 'server.html') { %>
+								<span class="sr-only">(current)</span>
+								<% } %>
+							</a>
+						</li>
+
+						<li class="nav-item <%= current === 'database.html' ? 'active' : '' %>">
+							<a
+								class="nav-link"
+								href="database.html">
+								Database <% if (current === 'database.html') { %>
+								<span class="sr-only">(current)</span>
+								<% } %>
+							</a>
+						</li>
 					</ul>
 
 					<form class="form-inline my-2 my-lg-0">
