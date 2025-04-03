@@ -1,5 +1,6 @@
 require('bootstrap');
 
+var $ = require('jquery');
 var pageScript = {
 	index: require('./js/dashboard'),
 	server: require('./js/server'),
@@ -7,4 +8,6 @@ var pageScript = {
 };
 var page = location.pathname.slice(1).replace(/\.html/gi, '');
 
-pageScript[page || 'index'].init();
+$(function () {
+	pageScript[page || 'index'].init();
+});
