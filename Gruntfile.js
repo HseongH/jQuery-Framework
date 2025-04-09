@@ -66,7 +66,7 @@ module.exports = function (grunt) {
 				}
 			},
 			template: {
-				files: ['src/pages/*.html'],
+				files: ['src/pages/*.html', 'src/partials/*.*'],
 				tasks: ['template'],
 				options: {
 					livereload: true
@@ -143,7 +143,7 @@ module.exports = function (grunt) {
 		browserify: {
 			dist: {
 				files: {
-					'dist/assets/index.js': ['src/index.js']
+					'dist/assets/index.js': ['src/main.js']
 				}
 			}
 		},

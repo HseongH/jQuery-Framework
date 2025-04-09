@@ -1,5 +1,5 @@
 {
-	"name": "es5",
+	"name": "jquery-framework",
 	"version": "1.0.0",
 	"description": "",
 	"main": "index.js",
@@ -63,7 +63,9 @@
 		"datatables.net-searchbuilder-bs4": "^1.8.2",
 		"datatables.net-select-bs4": "^3.0.0",
 		"datatables.net-staterestore-bs4": "^1.4.1",
+		"dayjs": "^1.11.13",
 		"jquery": "^3.7.1",
+		"select2": "^4.1.0-rc.0",
 		"underscore": "^1.13.7"
 	}
 }

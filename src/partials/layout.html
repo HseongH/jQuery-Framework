@@ -16,73 +16,65 @@
 	<body>
 		<main>
 			<nav class="navbar navbar-expand-sm navbar-light bg-light">
-				<a
-					class="navbar-brand"
-					href="index.html">
-					Navbar
-				</a>
+				<div class="container">
+					<a
+						class="navbar-brand"
+						href="/">
+						Navbar
+					</a>
 
-				<button
-					class="navbar-toggler d-lg-none"
-					type="button"
-					data-toggle="collapse"
-					data-target="#collapsibleNav"
-					aria-controls="collapsibleNav"
-					aria-expanded="false"
-					aria-label="Toggle navigation">
-					<span class="navbar-toggler-icon"></span>
-				</button>
+					<button
+						class="navbar-toggler d-lg-none"
+						type="button"
+						data-toggle="collapse"
+						data-target="#collapsibleNav"
+						aria-controls="collapsibleNav"
+						aria-expanded="false"
+						aria-label="Toggle navigation">
+						<span class="navbar-toggler-icon"></span>
+					</button>
 
-				<div
-					class="collapse navbar-collapse"
-					id="collapsibleNav">
-					<ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-						<li class="nav-item <%= current === 'index.html' ? 'active' : '' %>">
-							<a
-								class="nav-link"
-								href="index.html">
-								Dashboard <% if (current === 'index.html') { %>
-								<span class="sr-only">(current)</span>
-								<% } %>
-							</a>
-						</li>
+					<div
+						class="collapse navbar-collapse"
+						id="collapsibleNav">
+						<ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+							<li class="nav-item <%= current === 'index.html' ? 'active' : '' %>">
+								<a
+									class="nav-link"
+									href="/">
+									Questions <% if (current === 'index.html') { %>
+									<span class="sr-only">(current)</span>
+									<% } %>
+								</a>
+							</li>
 
-						<li class="nav-item <%= current === 'server.html' ? 'active' : '' %>">
-							<a
-								class="nav-link"
-								href="server.html">
-								Server <% if (current === 'server.html') { %>
-								<span class="sr-only">(current)</span>
-								<% } %>
-							</a>
-						</li>
+							<li class="nav-item <%= current === 'detail.html' ? 'active' : '' %>">
+								<a
+									class="nav-link"
+									href="detail.html">
+									Detail <% if (current === 'detail.html') { %>
+									<span class="sr-only">(current)</span>
+									<% } %>
+								</a>
+							</li>
+						</ul>
 
-						<li class="nav-item <%= current === 'database.html' ? 'active' : '' %>">
-							<a
-								class="nav-link"
-								href="database.html">
-								Database <% if (current === 'database.html') { %>
-								<span class="sr-only">(current)</span>
-								<% } %>
-							</a>
-						</li>
-					</ul>
-
-					<form class="form-inline my-2 my-lg-0">
-						<input
-							class="form-control mr-sm-2"
-							type="text"
-							placeholder="Search" />
-						<button
-							class="btn btn-outline-success my-2 my-sm-0"
-							type="submit">
-							Search
-						</button>
-					</form>
+						<form class="form-inline my-2 my-lg-0">
+							<input
+								class="form-control mr-sm-2"
+								type="text"
+								placeholder="Search" />
+							<button
+								class="btn btn-outline-success my-2 my-sm-0"
+								type="submit">
+								Search
+							</button>
+						</form>
+					</div>
 				</div>
 			</nav>
 
-			<div class="container-fluid"><%= contents %></div>
+			<section class="container"><%= contents %></section>
 		</main>
 
 		<!-- build:js /assets/index.min.js -->
