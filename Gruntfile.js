@@ -23,24 +23,40 @@ module.exports = function (grunt) {
 			server: {
 				options: {
 					port: 80,
-					hostname: '*',
+					hostname: '0.0.0.0',
 					livereload: true,
 					open: true,
 					base: 'dist',
 					middleware: function (connect, options, middlewares) {
-						var proxy = require('grunt-middleware-proxy/lib/Utils').getProxyMiddleware();
-						middlewares.unshift(proxy);
-
+						middlewares.unshift(require('grunt-middleware-proxy/lib/Utils').getProxyMiddleware());
 						return middlewares;
 					}
 				},
-				proxies: ['/auth-user', '/auth-admin'].map(function (context) {
+				proxies: [
+					'/auth-anon',
+					'/auth-user',
+					'/auth-admin',
+					'/auth-check',
+					'/auth-sche',
+					'/sso',
+					'/dwr',
+					'/logout',
+					'/login',
+					'/oauth2',
+					'/arms-check',
+					'/swagger-ui.html',
+					'/swagger-ui',
+					'/webjars',
+					'/swagger-resources',
+					'/v2',
+					'/engine-search-api'
+				].map(function (context) {
 					return {
 						context: context,
 						host: process.env.PROXY_URL,
 						port: 13131,
 						https: false,
-						rewriteHost: false
+						rewriteHost: true
 					};
 				})
 			}
@@ -70,12 +86,6 @@ module.exports = function (grunt) {
 				tasks: ['template'],
 				options: {
 					livereload: true
-				}
-			},
-			configFiles: {
-				files: ['Gruntfile.js', '*.config.js'],
-				options: {
-					reload: true
 				}
 			}
 		},
@@ -115,7 +125,7 @@ module.exports = function (grunt) {
 				src: [
 					'dist/assets/style.css',
 					'node_modules/datatables.net-*/css/*.css',
-					'!node_modules/datatables.net-*/css/*.min.css' // .min.css 파일 제외
+					'!node_modules/**/*.min.css' // .min.css 파일 제외
 				],
 				dest: 'dist/assets/style.css'
 			}
@@ -236,9 +246,9 @@ module.exports = function (grunt) {
 				files: [
 					{
 						expand: true,
-						cwd: 'src/assets/fonts',
+						cwd: 'node_modules/@fortawesome/fontawesome-free/webfonts',
 						src: '**',
-						dest: 'dist/assets/fonts'
+						dest: 'dist/assets/fonts/fontawesome'
 					}
 				]
 			}
@@ -283,7 +293,6 @@ module.exports = function (grunt) {
 			try {
 				// 레이아웃에 페이지 내용 삽입 (HTML 이스케이프 방지)
 				var finalContent = _.template(layoutContent)({
-					current: page,
 					contents: fs.readFileSync(path.join(files.cwd, page), 'utf8')
 				});
 
@@ -326,6 +335,7 @@ module.exports = function (grunt) {
 		'clean',
 		'sass',
 		'concat',
+		'copy',
 		'browserify',
 		'template',
 		'setupProxies:server',
