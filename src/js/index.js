@@ -1,18 +1,24 @@
-require('select2')();
-
 var $ = require('jquery');
-var _ = require('underscore');
+require('../partials/post-list');
 
 var init = function () {
-	$('#post_filter').select2();
+	var searchAfter = [];
+	var getPostList = function () {
+		$.ajax({
+			url: '/bbs/board-list/only-post-list',
+			type: 'GET',
+			data: {
+				'searchAfter[]': searchAfter
+			},
+			success: function (data) {
+				searchAfter = data.response.searchAfter;
+				$('#post_list').postList(data.response.bbsEntities);
+			}
+		});
+	};
 
-	$.ajax({
-		url: '/engine-search-api/engine/bbs/subject',
-		type: 'GET',
-		success: function (data) {
-			console.log(data);
-		}
-	});
+	getPostList();
+	$('#next_btn').on('click', getPostList);
 };
 
 module.exports = {

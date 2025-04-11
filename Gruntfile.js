@@ -49,7 +49,8 @@ module.exports = function (grunt) {
 					'/webjars',
 					'/swagger-resources',
 					'/v2',
-					'/engine-search-api'
+					'/engine-search-api',
+					'/bbs'
 				].map(function (context) {
 					return {
 						context: context,
@@ -82,7 +83,7 @@ module.exports = function (grunt) {
 				}
 			},
 			template: {
-				files: ['src/pages/*.html', 'src/partials/*.*'],
+				files: ['src/pages/*.html'],
 				tasks: ['template'],
 				options: {
 					livereload: true
@@ -125,6 +126,7 @@ module.exports = function (grunt) {
 				src: [
 					'dist/assets/style.css',
 					'node_modules/datatables.net-*/css/*.css',
+					'node_modules/quill/dist/*.css',
 					'!node_modules/**/*.min.css' // .min.css 파일 제외
 				],
 				dest: 'dist/assets/style.css'
